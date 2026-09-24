@@ -1,0 +1,6 @@
+{
+  "name": "Dynamic FastMCP Database Studio",
+  "description": "Database-Driven Dynamic FastMCP Tool Management System & Admin UI for AI Agents",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
