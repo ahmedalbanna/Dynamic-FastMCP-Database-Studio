@@ -11,21 +11,11 @@ import { AgentSandbox } from '@/components/AgentSandbox';
 import { DatabaseExplorer } from '@/components/DatabaseExplorer';
 import { CodeExporter } from '@/components/CodeExporter';
 import { ArchitectureView } from '@/components/ArchitectureModal';
-import {
-  Server,
-  Database,
-  Terminal,
-  Bot,
-  Plus,
-  ArrowRight,
-  Sparkles,
-  Layers,
-  Cpu,
-  CheckCircle2,
-} from 'lucide-react';
+import { Plus, Bot } from 'lucide-react';
 
 export default function HomePage() {
   const [lang, setLang] = useState<Language>('ar');
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [activeTab, setActiveTab] = useState<string>('catalog');
   const [tools, setTools] = useState<DynamicMCPTool[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -75,6 +65,10 @@ export default function HomePage() {
 
   const handleToggleLang = () => {
     setLang(prev => (prev === 'ar' ? 'en' : 'ar'));
+  };
+
+  const handleToggleTheme = () => {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   const handleOpenCreateModal = () => {
@@ -170,16 +164,21 @@ export default function HomePage() {
   };
 
   const activeCount = tools.filter(t => t.isActive).length;
+  const isDark = theme === 'dark';
 
   return (
     <div
       dir={lang === 'ar' ? 'rtl' : 'ltr'}
-      className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500/30 selection:text-emerald-200"
+      className={`min-h-screen font-sans selection:bg-emerald-500/30 selection:text-emerald-700 transition-colors duration-200 ${
+        isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
+      }`}
     >
       {/* Top Navbar */}
       <Navbar
         lang={lang}
         onToggleLang={handleToggleLang}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         onOpenCreateModal={handleOpenCreateModal}
@@ -190,42 +189,80 @@ export default function HomePage() {
       {/* Main Container */}
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Hero Section */}
-        <section className="relative rounded-2xl border border-slate-800/80 bg-gradient-to-b from-slate-900/90 via-slate-900/40 to-slate-950 p-6 sm:p-8 overflow-hidden">
+        <section
+          className={`relative rounded-2xl border p-6 sm:p-8 overflow-hidden transition-colors duration-200 ${
+            isDark
+              ? 'border-slate-800/80 bg-gradient-to-b from-slate-900/90 via-slate-900/40 to-slate-950'
+              : 'border-slate-200 bg-white shadow-sm'
+          }`}
+        >
           <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
           <div className="absolute -left-16 -bottom-16 h-64 w-64 rounded-full bg-sky-500/10 blur-3xl pointer-events-none" />
 
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3 max-w-3xl">
-              <div className="flex items-center gap-2 text-xs font-mono text-emerald-400">
-                <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+              <div
+                className={`flex items-center gap-2 text-xs font-mono font-medium ${
+                  isDark ? 'text-emerald-400' : 'text-emerald-700'
+                }`}
+              >
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
                 <span>FastMCP Protocol v2024-11-05</span>
                 <span>·</span>
                 <span>Dynamic Database Hydration</span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white leading-tight">
+              <h1
+                className={`text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight leading-tight ${
+                  isDark ? 'text-white' : 'text-slate-900'
+                }`}
+              >
                 {t.appTitle}
               </h1>
 
-              <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-2xl">
+              <p
+                className={`text-sm sm:text-base leading-relaxed max-w-2xl ${
+                  isDark ? 'text-slate-400' : 'text-slate-600'
+                }`}
+              >
                 {lang === 'ar'
                   ? 'منظومة مبتكرة تفصل منطق أدوات بروتوكول MCP عن الكود المصدري عبر تخزينها في قاعدة بيانات مركزية. يمكنك إنشاء وتحديث وفحص أدوات الذكاء الاصطناعي لحظياً دون الحاجة لإعادة تشغيل الخادم على الإطلاق.'
                   : 'An innovative architectural system decoupling MCP tool logic from rigid source code by storing all definitions in a central database. Create, update, and test AI tools visually with zero server restarts.'}
               </p>
 
               {/* Unboxed Status & Telemetry Row (Zero-pill compliant: unboxed metadata with separators) */}
-              <div className="flex items-center flex-wrap gap-2 text-xs text-slate-400 pt-1">
-                <span className="font-semibold text-white font-mono tabular-nums">
+              <div
+                className={`flex items-center flex-wrap gap-2 text-xs pt-1 ${
+                  isDark ? 'text-slate-400' : 'text-slate-600'
+                }`}
+              >
+                <span
+                  className={`font-semibold font-mono tabular-nums ${
+                    isDark ? 'text-white' : 'text-slate-900'
+                  }`}
+                >
                   {tools.length} {t.toolsCount}
                 </span>
-                <span aria-hidden="true" className="text-slate-600">·</span>
-                <span className="text-emerald-400 font-mono tabular-nums font-semibold">
+                <span
+                  aria-hidden="true"
+                  className={isDark ? 'text-slate-600' : 'text-slate-300'}
+                >
+                  ·
+                </span>
+                <span
+                  className={`font-mono tabular-nums font-semibold ${
+                    isDark ? 'text-emerald-400' : 'text-emerald-700'
+                  }`}
+                >
                   {activeCount} {t.activeCount}
                 </span>
-                <span aria-hidden="true" className="text-slate-600">·</span>
-                <span className="text-slate-400">
-                  {t.connectedDb}
+                <span
+                  aria-hidden="true"
+                  className={isDark ? 'text-slate-600' : 'text-slate-300'}
+                >
+                  ·
                 </span>
+                <span>{t.connectedDb}</span>
               </div>
             </div>
 
@@ -233,7 +270,7 @@ export default function HomePage() {
             <div className="flex flex-wrap md:flex-col gap-2.5 shrink-0">
               <button
                 onClick={handleOpenCreateModal}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 active:bg-emerald-500 rounded-lg transition-colors cursor-pointer shadow-md"
+                className="flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 active:bg-emerald-500 rounded-lg transition-colors duration-200 cursor-pointer shadow-xs"
               >
                 <Plus className="h-4 w-4" />
                 <span>{t.createToolBtn}</span>
@@ -241,9 +278,17 @@ export default function HomePage() {
 
               <button
                 onClick={() => setActiveTab('agent')}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-medium text-slate-200 bg-slate-800 hover:bg-slate-750 border border-slate-700/70 rounded-lg transition-colors cursor-pointer"
+                className={`flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-medium rounded-lg border transition-colors duration-200 cursor-pointer ${
+                  isDark
+                    ? 'text-slate-200 bg-slate-850 hover:bg-slate-800 border-slate-700/70'
+                    : 'text-slate-800 bg-slate-100 hover:bg-slate-200 border-slate-200 shadow-2xs'
+                }`}
               >
-                <Bot className="h-4 w-4 text-emerald-400" />
+                <Bot
+                  className={`h-4 w-4 ${
+                    isDark ? 'text-emerald-400' : 'text-emerald-700'
+                  }`}
+                />
                 <span>{lang === 'ar' ? 'تشغيل المساعد الذكي' : 'Test AI Agent'}</span>
               </button>
             </div>
@@ -254,7 +299,11 @@ export default function HomePage() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="h-8 w-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin mb-3" />
-            <span className="text-xs font-mono text-slate-400">
+            <span
+              className={`text-xs font-mono ${
+                isDark ? 'text-slate-400' : 'text-slate-600'
+              }`}
+            >
               Hydrating tools from database registry...
             </span>
           </div>
@@ -264,6 +313,7 @@ export default function HomePage() {
               <ToolCatalog
                 tools={tools}
                 lang={lang}
+                theme={theme}
                 onSelectToolForTest={handleSelectToolForTest}
                 onEditTool={handleEditTool}
                 onDuplicateTool={handleDuplicateTool}
@@ -278,18 +328,25 @@ export default function HomePage() {
                 tools={tools}
                 selectedToolId={testToolId}
                 lang={lang}
+                theme={theme}
               />
             )}
 
             {activeTab === 'agent' && (
-              <AgentSandbox tools={tools} lang={lang} />
+              <AgentSandbox tools={tools} lang={lang} theme={theme} />
             )}
 
-            {activeTab === 'database' && <DatabaseExplorer lang={lang} />}
+            {activeTab === 'database' && (
+              <DatabaseExplorer lang={lang} theme={theme} />
+            )}
 
-            {activeTab === 'code' && <CodeExporter tools={tools} lang={lang} />}
+            {activeTab === 'code' && (
+              <CodeExporter tools={tools} lang={lang} theme={theme} />
+            )}
 
-            {activeTab === 'arch' && <ArchitectureView lang={lang} />}
+            {activeTab === 'arch' && (
+              <ArchitectureView lang={lang} theme={theme} />
+            )}
           </div>
         )}
       </main>
@@ -303,14 +360,25 @@ export default function HomePage() {
           onSave={handleSaveTool}
           initialTool={editingTool}
           lang={lang}
+          theme={theme}
         />
       )}
 
       {/* Subtle Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950 mt-16 py-8">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <footer
+        className={`border-t mt-16 py-8 transition-colors duration-200 ${
+          isDark ? 'border-slate-800/80 bg-slate-950 text-slate-500' : 'border-slate-200 bg-white text-slate-600'
+        }`}
+      >
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-300">FastMCP Dynamic Database Studio</span>
+            <span
+              className={`font-semibold ${
+                isDark ? 'text-slate-300' : 'text-slate-800'
+              }`}
+            >
+              FastMCP Dynamic Database Studio
+            </span>
             <span>·</span>
             <span>Model Context Protocol Specification</span>
           </div>
@@ -318,19 +386,25 @@ export default function HomePage() {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setActiveTab('arch')}
-              className="hover:text-slate-300 transition-colors"
+              className={`transition-colors duration-200 cursor-pointer ${
+                isDark ? 'hover:text-slate-300' : 'hover:text-slate-900'
+              }`}
             >
               {lang === 'ar' ? 'المعمارية التقنية' : 'Architecture'}
             </button>
             <button
               onClick={() => setActiveTab('code')}
-              className="hover:text-slate-300 transition-colors"
+              className={`transition-colors duration-200 cursor-pointer ${
+                isDark ? 'hover:text-slate-300' : 'hover:text-slate-900'
+              }`}
             >
               {lang === 'ar' ? 'كود بايثون' : 'Python Server'}
             </button>
             <button
               onClick={() => setActiveTab('database')}
-              className="hover:text-slate-300 transition-colors"
+              className={`transition-colors duration-200 cursor-pointer ${
+                isDark ? 'hover:text-slate-300' : 'hover:text-slate-900'
+              }`}
             >
               {lang === 'ar' ? 'قاعدة البيانات' : 'Database'}
             </button>

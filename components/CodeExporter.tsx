@@ -4,15 +4,17 @@ import React, { useState } from 'react';
 import { DynamicMCPTool } from '@/lib/mcp-types';
 import { generateFastMCPPythonCode } from '@/lib/tool-storage';
 import { Language, TRANSLATIONS } from '@/lib/translations';
-import { Copy, Check, Download, Server, FileCode, CheckCircle2, Terminal } from 'lucide-react';
+import { Copy, Check, Download, Server, FileCode, Terminal } from 'lucide-react';
 
 interface CodeExporterProps {
   tools: DynamicMCPTool[];
   lang: Language;
+  theme?: 'dark' | 'light';
 }
 
-export const CodeExporter: React.FC<CodeExporterProps> = ({ tools, lang }) => {
+export const CodeExporter: React.FC<CodeExporterProps> = ({ tools, lang, theme = 'dark' }) => {
   const t = TRANSLATIONS[lang];
+  const isDark = theme === 'dark';
   const [selectedFile, setSelectedFile] = useState<'server' | 'config' | 'reqs'>('server');
   const [hasCopied, setHasCopied] = useState(false);
 
@@ -83,32 +85,54 @@ uvicorn>=0.30.0
   return (
     <div className="space-y-6">
       {/* Overview Banner */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+      <div
+        className={`rounded-xl border p-6 transition-colors duration-200 ${
+          isDark
+            ? 'border-slate-800 bg-slate-900/60'
+            : 'border-slate-200 bg-white shadow-xs'
+        }`}
+      >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h3 className="text-base font-semibold text-white tracking-tight">
+            <h3
+              className={`text-base font-semibold tracking-tight ${
+                isDark ? 'text-white' : 'text-slate-900'
+              }`}
+            >
               {lang === 'ar'
                 ? 'كود خادم FastMCP بايثون الموجه بقاعدة البيانات'
                 : 'Python FastMCP Production Server Code'}
             </h3>
-            <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+            <p
+              className={`text-xs mt-1 max-w-2xl leading-relaxed ${
+                isDark ? 'text-slate-400' : 'text-slate-600'
+              }`}
+            >
               {lang === 'ar'
                 ? 'خادم بايثون مخصص يقوم بتحميل كافة الأدوات والاستعلامات ومخططات JSON ديناميكياً من قاعدة البيانات المركزية. يتيح إضافة وتعديل أدوات الذكاء الاصطناعي دون الحاجة لإعادة تشغيل الخادم على الإطلاق!'
                 : 'Decoupled Python server utilizing the FastMCP framework. Reads tool definitions directly from the central database on-demand, allowing zero-restart tool deployment for Claude Desktop, Cursor, and AI Agents.'}
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-750 border border-slate-700/60 rounded-lg transition-colors cursor-pointer"
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors duration-200 cursor-pointer ${
+                isDark
+                  ? 'text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-750 border-slate-700/60'
+                  : 'text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border-slate-200 shadow-2xs'
+              }`}
             >
-              {hasCopied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+              {hasCopied ? (
+                <Check className="h-3.5 w-3.5 text-emerald-500" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" />
+              )}
               <span>{hasCopied ? t.copied : t.copyCode}</span>
             </button>
             <button
               onClick={handleDownload}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg transition-colors duration-200 cursor-pointer shadow-xs"
             >
               <Download className="h-3.5 w-3.5" />
               <span>Download {getFileName()}</span>
@@ -118,13 +142,21 @@ uvicorn>=0.30.0
       </div>
 
       {/* File Navigation Tabs */}
-      <div className="flex items-center gap-1 p-1 bg-slate-950 border border-slate-800 rounded-xl w-fit">
+      <div
+        className={`flex items-center gap-1 p-1 rounded-xl border w-fit transition-colors duration-200 ${
+          isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-200'
+        }`}
+      >
         <button
           onClick={() => setSelectedFile('server')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-lg transition-colors ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-lg transition-colors duration-200 cursor-pointer ${
             selectedFile === 'server'
-              ? 'bg-slate-800 text-emerald-400 shadow-sm'
-              : 'text-slate-400 hover:text-slate-200'
+              ? isDark
+                ? 'bg-slate-800 text-emerald-400 shadow-sm font-semibold'
+                : 'bg-white text-emerald-700 shadow-xs font-semibold'
+              : isDark
+              ? 'text-slate-400 hover:text-slate-200'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           <FileCode className="h-3.5 w-3.5" />
@@ -132,10 +164,14 @@ uvicorn>=0.30.0
         </button>
         <button
           onClick={() => setSelectedFile('config')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-lg transition-colors ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-lg transition-colors duration-200 cursor-pointer ${
             selectedFile === 'config'
-              ? 'bg-slate-800 text-sky-400 shadow-sm'
-              : 'text-slate-400 hover:text-slate-200'
+              ? isDark
+                ? 'bg-slate-800 text-sky-400 shadow-sm font-semibold'
+                : 'bg-white text-sky-700 shadow-xs font-semibold'
+              : isDark
+              ? 'text-slate-400 hover:text-slate-200'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           <Terminal className="h-3.5 w-3.5" />
@@ -143,10 +179,14 @@ uvicorn>=0.30.0
         </button>
         <button
           onClick={() => setSelectedFile('reqs')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-lg transition-colors ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-lg transition-colors duration-200 cursor-pointer ${
             selectedFile === 'reqs'
-              ? 'bg-slate-800 text-purple-400 shadow-sm'
-              : 'text-slate-400 hover:text-slate-200'
+              ? isDark
+                ? 'bg-slate-800 text-purple-400 shadow-sm font-semibold'
+                : 'bg-white text-purple-700 shadow-xs font-semibold'
+              : isDark
+              ? 'text-slate-400 hover:text-slate-200'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           <Server className="h-3.5 w-3.5" />

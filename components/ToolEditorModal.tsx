@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { DynamicMCPTool, ExecutionType, ToolCategory, JSONSchemaProperty } from '@/lib/mcp-types';
 import { Language, TRANSLATIONS } from '@/lib/translations';
-import { X, Plus, Trash2, Play, Check, Database, Globe, Code2, AlertCircle } from 'lucide-react';
+import { X, Plus, Trash2, Play, Check, AlertCircle } from 'lucide-react';
 
 interface ToolEditorModalProps {
   isOpen: boolean;
@@ -11,6 +11,7 @@ interface ToolEditorModalProps {
   onSave: (tool: Partial<DynamicMCPTool> & { name: string }) => Promise<void>;
   initialTool?: DynamicMCPTool | null;
   lang: Language;
+  theme?: 'dark' | 'light';
 }
 
 interface ParamItem {
@@ -29,8 +30,10 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
   onSave,
   initialTool,
   lang,
+  theme = 'dark',
 }) => {
   const t = TRANSLATIONS[lang];
+  const isDark = theme === 'dark';
 
   const [activeTab, setActiveTab] = useState<'config' | 'schema' | 'logic' | 'preview'>('config');
   const [name, setName] = useState(() => initialTool ? initialTool.name : 'query_custom_data');
@@ -219,11 +222,25 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-      <div className="relative w-full max-w-3xl rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl overflow-hidden my-8">
+      <div
+        className={`relative w-full max-w-3xl rounded-2xl border shadow-2xl overflow-hidden my-8 transition-colors duration-200 ${
+          isDark
+            ? 'border-slate-800 bg-slate-900 text-slate-100'
+            : 'border-slate-200 bg-white text-slate-900'
+        }`}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4 bg-slate-950/50">
+        <div
+          className={`flex items-center justify-between border-b px-6 py-4 transition-colors duration-200 ${
+            isDark ? 'border-slate-800 bg-slate-950/50' : 'border-slate-200 bg-slate-50'
+          }`}
+        >
           <div>
-            <h3 className="text-base font-semibold text-white">
+            <h3
+              className={`text-base font-semibold ${
+                isDark ? 'text-white' : 'text-slate-900'
+              }`}
+            >
               {initialTool
                 ? lang === 'ar'
                   ? `تعديل أداة: ${initialTool.name}`
@@ -232,7 +249,11 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                 ? 'إنشاء أداة FastMCP جديدة بقاعدة البيانات'
                 : 'Create Database-Driven FastMCP Tool'}
             </h3>
-            <p className="text-xs text-slate-400">
+            <p
+              className={`text-xs ${
+                isDark ? 'text-slate-400' : 'text-slate-600'
+              }`}
+            >
               {lang === 'ar'
                 ? 'يتم تخزين التعريف في قاعدة البيانات وتحديثه لحظياً بدون الحاجة لإعادة تشغيل الخادم'
                 : 'Stored in central database & dynamically hydrated without server restart'}
@@ -240,14 +261,22 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+            className={`p-1.5 rounded-lg transition-colors duration-200 cursor-pointer ${
+              isDark
+                ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+            }`}
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Tab Controls */}
-        <div className="flex border-b border-slate-800 px-6 bg-slate-950/30 gap-2">
+        <div
+          className={`flex border-b px-6 gap-2 transition-colors duration-200 ${
+            isDark ? 'border-slate-800 bg-slate-950/30' : 'border-slate-200 bg-slate-50/50'
+          }`}
+        >
           {[
             { id: 'config', label: lang === 'ar' ? '1. الإعدادات والوصف' : '1. General & Info' },
             { id: 'schema', label: lang === 'ar' ? '2. مخطط المتغيرات Schema' : '2. Parameters Schema' },
@@ -257,10 +286,14 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`py-3 px-3 text-xs font-medium border-b-2 transition-colors cursor-pointer ${
+              className={`py-3 px-3 text-xs font-medium border-b-2 transition-colors duration-200 cursor-pointer ${
                 activeTab === tab.id
-                  ? 'border-emerald-400 text-emerald-400'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
+                  ? isDark
+                    ? 'border-emerald-400 text-emerald-400 font-semibold'
+                    : 'border-emerald-600 text-emerald-700 font-semibold'
+                  : isDark
+                  ? 'border-transparent text-slate-400 hover:text-slate-200'
+                  : 'border-transparent text-slate-600 hover:text-slate-900'
               }`}
             >
               {tab.label}
@@ -271,7 +304,7 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
         {/* Content Body */}
         <div className="p-6 max-h-[65vh] overflow-y-auto space-y-4">
           {errorMsg && (
-            <div className="flex items-center gap-2 p-3 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs rounded-lg">
+            <div className="flex items-center gap-2 p-3 bg-rose-500/10 border border-rose-500/20 text-rose-600 text-xs rounded-lg">
               <AlertCircle className="h-4 w-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>
@@ -282,7 +315,11 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                  <label
+                    className={`block text-xs font-medium mb-1 ${
+                      isDark ? 'text-slate-300' : 'text-slate-800'
+                    }`}
+                  >
                     {t.toolName} *
                   </label>
                   <input
@@ -290,15 +327,27 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                     value={name}
                     onChange={e => setName(e.target.value)}
                     placeholder="e.g. query_vip_customers"
-                    className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-xs font-mono text-emerald-400 focus:border-emerald-500 focus:outline-none"
+                    className={`w-full rounded-lg border px-3 py-2 text-xs font-mono transition-colors duration-200 focus:border-emerald-500 focus:outline-none ${
+                      isDark
+                        ? 'bg-slate-950 border-slate-800 text-emerald-400'
+                        : 'bg-white border-slate-300 text-emerald-700 shadow-2xs'
+                    }`}
                   />
-                  <span className="text-[10px] text-slate-500 mt-1 block">
+                  <span
+                    className={`text-[10px] mt-1 block ${
+                      isDark ? 'text-slate-500' : 'text-slate-600'
+                    }`}
+                  >
                     {lang === 'ar' ? 'المعرف الفريد لاستدعاء MCP بالنموذج' : 'Unique identifier for MCP function calls'}
                   </span>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                  <label
+                    className={`block text-xs font-medium mb-1 ${
+                      isDark ? 'text-slate-300' : 'text-slate-800'
+                    }`}
+                  >
                     {lang === 'ar' ? 'الإصدار (Version)' : 'Version'}
                   </label>
                   <input
@@ -306,20 +355,32 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                     value={version}
                     onChange={e => setVersion(e.target.value)}
                     placeholder="1.0.0"
-                    className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                    className={`w-full rounded-lg border px-3 py-2 text-xs font-mono transition-colors duration-200 focus:border-emerald-500 focus:outline-none ${
+                      isDark
+                        ? 'bg-slate-950 border-slate-800 text-white'
+                        : 'bg-white border-slate-300 text-slate-900 shadow-2xs'
+                    }`}
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                  <label
+                    className={`block text-xs font-medium mb-1 ${
+                      isDark ? 'text-slate-300' : 'text-slate-800'
+                    }`}
+                  >
                     {t.category}
                   </label>
                   <select
                     value={category}
                     onChange={e => setCategory(e.target.value as any)}
-                    className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className={`w-full rounded-lg border px-3 py-2 text-xs cursor-pointer transition-colors duration-200 focus:border-emerald-500 focus:outline-none ${
+                      isDark
+                        ? 'bg-slate-950 border-slate-800 text-white'
+                        : 'bg-white border-slate-300 text-slate-900 shadow-2xs'
+                    }`}
                   >
                     <option value="DATABASE_SQL">DATABASE_SQL (قواعد بيانات)</option>
                     <option value="REST_API">REST_API (واجهات برمجية)</option>
@@ -329,13 +390,21 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                  <label
+                    className={`block text-xs font-medium mb-1 ${
+                      isDark ? 'text-slate-300' : 'text-slate-800'
+                    }`}
+                  >
                     {t.executionType}
                   </label>
                   <select
                     value={executionType}
                     onChange={e => setExecutionType(e.target.value as any)}
-                    className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className={`w-full rounded-lg border px-3 py-2 text-xs cursor-pointer transition-colors duration-200 focus:border-emerald-500 focus:outline-none ${
+                      isDark
+                        ? 'bg-slate-950 border-slate-800 text-white'
+                        : 'bg-white border-slate-300 text-slate-900 shadow-2xs'
+                    }`}
                   >
                     <option value="sql">SQL Query (PostgreSQL / SQLite)</option>
                     <option value="http">HTTP REST API (Webhooks / Services)</option>
@@ -346,7 +415,11 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                  <label
+                    className={`block text-xs font-medium mb-1 ${
+                      isDark ? 'text-slate-300' : 'text-slate-800'
+                    }`}
+                  >
                     {lang === 'ar' ? 'العنوان بالعربية' : 'Title (Arabic)'}
                   </label>
                   <input
@@ -354,11 +427,19 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                     value={titleAr}
                     onChange={e => setTitleAr(e.target.value)}
                     placeholder="عنوان واضح للأداة"
-                    className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className={`w-full rounded-lg border px-3 py-2 text-xs transition-colors duration-200 focus:border-emerald-500 focus:outline-none ${
+                      isDark
+                        ? 'bg-slate-950 border-slate-800 text-white'
+                        : 'bg-white border-slate-300 text-slate-900 shadow-2xs'
+                    }`}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                  <label
+                    className={`block text-xs font-medium mb-1 ${
+                      isDark ? 'text-slate-300' : 'text-slate-800'
+                    }`}
+                  >
                     {lang === 'ar' ? 'العنوان بالإنجليزية' : 'Title (English)'}
                   </label>
                   <input
@@ -366,13 +447,21 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                     value={titleEn}
                     onChange={e => setTitleEn(e.target.value)}
                     placeholder="Clear Tool Title"
-                    className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className={`w-full rounded-lg border px-3 py-2 text-xs transition-colors duration-200 focus:border-emerald-500 focus:outline-none ${
+                      isDark
+                        ? 'bg-slate-950 border-slate-800 text-white'
+                        : 'bg-white border-slate-300 text-slate-900 shadow-2xs'
+                    }`}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label
+                  className={`block text-xs font-medium mb-1 ${
+                    isDark ? 'text-slate-300' : 'text-slate-800'
+                  }`}
+                >
                   {lang === 'ar' ? 'وصف الأداة لنموذج الذكاء الاصطناعي (عربي)' : 'AI Tool Description (Arabic)'}
                 </label>
                 <textarea
@@ -380,12 +469,20 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                   value={descAr}
                   onChange={e => setDescAr(e.target.value)}
                   placeholder="اشرح بدقة متى وكيف يستدعي النموذج هذه الأداة وما الذي تعيده..."
-                  className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                  className={`w-full rounded-lg border px-3 py-2 text-xs transition-colors duration-200 focus:border-emerald-500 focus:outline-none ${
+                    isDark
+                      ? 'bg-slate-950 border-slate-800 text-white'
+                      : 'bg-white border-slate-300 text-slate-900 shadow-2xs'
+                  }`}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label
+                  className={`block text-xs font-medium mb-1 ${
+                    isDark ? 'text-slate-300' : 'text-slate-800'
+                  }`}
+                >
                   {lang === 'ar' ? 'وصف الأداة بالإنجليزية (LLM System Prompt)' : 'AI Tool Description (English)'}
                 </label>
                 <textarea
@@ -393,7 +490,11 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                   value={descEn}
                   onChange={e => setDescEn(e.target.value)}
                   placeholder="Explain clearly to the LLM when and how to invoke this tool..."
-                  className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                  className={`w-full rounded-lg border px-3 py-2 text-xs transition-colors duration-200 focus:border-emerald-500 focus:outline-none ${
+                    isDark
+                      ? 'bg-slate-950 border-slate-800 text-white'
+                      : 'bg-white border-slate-300 text-slate-900 shadow-2xs'
+                  }`}
                 />
               </div>
             </div>
@@ -404,8 +505,18 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-xs font-semibold text-white">{t.parametersSchema}</h4>
-                  <p className="text-[11px] text-slate-400">
+                  <h4
+                    className={`text-xs font-semibold ${
+                      isDark ? 'text-white' : 'text-slate-900'
+                    }`}
+                  >
+                    {t.parametersSchema}
+                  </h4>
+                  <p
+                    className={`text-[11px] ${
+                      isDark ? 'text-slate-400' : 'text-slate-600'
+                    }`}
+                  >
                     {lang === 'ar'
                       ? 'حدد المتغيرات التي يطلبها الخادم من النموذج لاستدعاء الأداة بنجاح.'
                       : 'Define expected tool arguments with types and validation rules.'}
@@ -414,7 +525,11 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                 <button
                   type="button"
                   onClick={handleAddParam}
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-lg transition-colors cursor-pointer"
+                  className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors duration-200 cursor-pointer ${
+                    isDark
+                      ? 'text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30'
+                      : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border-emerald-200'
+                  }`}
                 >
                   <Plus className="h-3.5 w-3.5" />
                   <span>{t.addProperty}</span>
@@ -422,7 +537,13 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
               </div>
 
               {paramsList.length === 0 ? (
-                <div className="text-center py-8 rounded-lg border border-dashed border-slate-800 text-xs text-slate-500">
+                <div
+                  className={`text-center py-8 rounded-lg border border-dashed text-xs ${
+                    isDark
+                      ? 'border-slate-800 text-slate-500'
+                      : 'border-slate-300 text-slate-600 bg-slate-50'
+                  }`}
+                >
                   {lang === 'ar' ? 'لا توجد متغيرات محددة (الأداة بدون مدخلات)' : 'No parameters defined (Zero-arg tool)'}
                 </div>
               ) : (
@@ -430,26 +551,50 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                   {paramsList.map(param => (
                     <div
                       key={param.id}
-                      className="p-3 rounded-lg border border-slate-850 bg-slate-950/60 space-y-2.5"
+                      className={`p-3 rounded-lg border space-y-2.5 transition-colors duration-200 ${
+                        isDark
+                          ? 'border-slate-850 bg-slate-950/60'
+                          : 'border-slate-200 bg-slate-50/70'
+                      }`}
                     >
                       <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
                         <div className="sm:col-span-2">
-                          <label className="block text-[10px] text-slate-400 mb-0.5">{t.propName}</label>
+                          <label
+                            className={`block text-[10px] mb-0.5 ${
+                              isDark ? 'text-slate-400' : 'text-slate-600'
+                            }`}
+                          >
+                            {t.propName}
+                          </label>
                           <input
                             type="text"
                             value={param.name}
                             onChange={e => handleUpdateParam(param.id, { name: e.target.value })}
                             placeholder="customer_id"
-                            className="w-full rounded bg-slate-900 border border-slate-800 px-2.5 py-1.5 text-xs font-mono text-white focus:border-emerald-500 focus:outline-none"
+                            className={`w-full rounded border px-2.5 py-1.5 text-xs font-mono transition-colors duration-200 focus:border-emerald-500 focus:outline-none ${
+                              isDark
+                                ? 'bg-slate-900 border-slate-800 text-white'
+                                : 'bg-white border-slate-300 text-slate-900 shadow-2xs'
+                            }`}
                           />
                         </div>
 
                         <div>
-                          <label className="block text-[10px] text-slate-400 mb-0.5">{t.propType}</label>
+                          <label
+                            className={`block text-[10px] mb-0.5 ${
+                              isDark ? 'text-slate-400' : 'text-slate-600'
+                            }`}
+                          >
+                            {t.propType}
+                          </label>
                           <select
                             value={param.type}
                             onChange={e => handleUpdateParam(param.id, { type: e.target.value as any })}
-                            className="w-full rounded bg-slate-900 border border-slate-800 px-2.5 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                            className={`w-full rounded border px-2.5 py-1.5 text-xs cursor-pointer transition-colors duration-200 focus:border-emerald-500 focus:outline-none ${
+                              isDark
+                                ? 'bg-slate-900 border-slate-800 text-white'
+                                : 'bg-white border-slate-300 text-slate-900 shadow-2xs'
+                            }`}
                           >
                             <option value="string">string</option>
                             <option value="number">number</option>
@@ -460,19 +605,24 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                         </div>
 
                         <div className="flex items-center justify-between sm:justify-end gap-2 pt-4">
-                          <label className="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer">
+                          <label
+                            className={`flex items-center gap-1.5 text-xs cursor-pointer ${
+                              isDark ? 'text-slate-300' : 'text-slate-800'
+                            }`}
+                          >
                             <input
                               type="checkbox"
                               checked={param.required}
                               onChange={e => handleUpdateParam(param.id, { required: e.target.checked })}
-                              className="rounded border-slate-700 text-emerald-500 focus:ring-emerald-500"
+                              className="rounded border-slate-300 text-emerald-600 cursor-pointer"
                             />
                             <span>{t.propRequired}</span>
                           </label>
                           <button
                             type="button"
                             onClick={() => handleRemoveParam(param.id)}
-                            className="p-1 text-rose-400 hover:bg-rose-500/10 rounded transition-colors"
+                            className="p-1 text-rose-500 hover:bg-rose-500/10 rounded transition-colors duration-200 cursor-pointer"
+                            title="Remove parameter"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -481,18 +631,32 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <div>
-                          <label className="block text-[10px] text-slate-400 mb-0.5">{t.propDesc}</label>
+                          <label
+                            className={`block text-[10px] mb-0.5 ${
+                              isDark ? 'text-slate-400' : 'text-slate-600'
+                            }`}
+                          >
+                            {t.propDesc}
+                          </label>
                           <input
                             type="text"
                             value={param.description}
                             onChange={e => handleUpdateParam(param.id, { description: e.target.value })}
                             placeholder="e.g. Target customer ID to filter orders"
-                            className="w-full rounded bg-slate-900 border border-slate-800 px-2.5 py-1 text-xs text-slate-300 focus:border-emerald-500 focus:outline-none"
+                            className={`w-full rounded border px-2.5 py-1 text-xs transition-colors duration-200 focus:border-emerald-500 focus:outline-none ${
+                              isDark
+                                ? 'bg-slate-900 border-slate-800 text-slate-300'
+                                : 'bg-white border-slate-300 text-slate-800 shadow-2xs'
+                            }`}
                           />
                         </div>
 
                         <div>
-                          <label className="block text-[10px] text-slate-400 mb-0.5">
+                          <label
+                            className={`block text-[10px] mb-0.5 ${
+                              isDark ? 'text-slate-400' : 'text-slate-600'
+                            }`}
+                          >
                             {lang === 'ar' ? 'خيارات محددة Enum (مفصولة بفواصل)' : 'Enum Values (comma-separated)'}
                           </label>
                           <input
@@ -500,7 +664,11 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                             value={param.enumOptions || ''}
                             onChange={e => handleUpdateParam(param.id, { enumOptions: e.target.value })}
                             placeholder="Platinum, Gold, Silver"
-                            className="w-full rounded bg-slate-900 border border-slate-800 px-2.5 py-1 text-xs text-slate-300 focus:border-emerald-500 focus:outline-none"
+                            className={`w-full rounded border px-2.5 py-1 text-xs transition-colors duration-200 focus:border-emerald-500 focus:outline-none ${
+                              isDark
+                                ? 'bg-slate-900 border-slate-800 text-slate-300'
+                                : 'bg-white border-slate-300 text-slate-800 shadow-2xs'
+                            }`}
                           />
                         </div>
                       </div>
@@ -517,10 +685,18 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
               {executionType === 'sql' && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs font-medium text-slate-300">
+                    <label
+                      className={`block text-xs font-medium ${
+                        isDark ? 'text-slate-300' : 'text-slate-800'
+                      }`}
+                    >
                       {t.sqlQuery}
                     </label>
-                    <span className="text-[11px] text-emerald-400 font-mono">
+                    <span
+                      className={`text-[11px] font-mono ${
+                        isDark ? 'text-emerald-400' : 'text-emerald-700'
+                      }`}
+                    >
                       {t.sqlHint}
                     </span>
                   </div>
@@ -529,13 +705,27 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                     value={sqlQuery}
                     onChange={e => setSqlQuery(e.target.value)}
                     placeholder="SELECT * FROM customers WHERE tier = :tier LIMIT :limit;"
-                    className="w-full rounded-lg bg-slate-950 border border-slate-800 p-3 text-xs font-mono text-emerald-300 focus:border-emerald-500 focus:outline-none"
+                    className={`w-full rounded-lg border p-3 text-xs font-mono transition-colors duration-200 focus:border-emerald-500 focus:outline-none ${
+                      isDark
+                        ? 'bg-slate-950 border-slate-800 text-emerald-300'
+                        : 'bg-slate-900 border-slate-800 text-emerald-400'
+                    }`}
                   />
-                  <div className="text-[11px] text-slate-500 space-y-1">
-                    <span className="font-semibold text-slate-400 block">
+                  <div className="text-[11px] space-y-1">
+                    <span
+                      className={`font-semibold block ${
+                        isDark ? 'text-slate-400' : 'text-slate-700'
+                      }`}
+                    >
                       {lang === 'ar' ? 'الجداول المتاحة في قاعدة البيانات:' : 'Available Database Tables:'}
                     </span>
-                    <p className="font-mono">customers · orders · products · support_tickets</p>
+                    <p
+                      className={`font-mono ${
+                        isDark ? 'text-slate-500' : 'text-slate-600'
+                      }`}
+                    >
+                      customers · orders · products · support_tickets
+                    </p>
                   </div>
                 </div>
               )}
@@ -544,20 +734,32 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                 <div className="space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                     <div className="sm:col-span-1">
-                      <label className="block text-xs font-medium text-slate-300 mb-1">
+                      <label
+                        className={`block text-xs font-medium mb-1 ${
+                          isDark ? 'text-slate-300' : 'text-slate-800'
+                        }`}
+                      >
                         {t.httpMethod}
                       </label>
                       <select
                         value={httpMethod}
                         onChange={e => setHttpMethod(e.target.value as any)}
-                        className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-xs text-white"
+                        className={`w-full rounded-lg border px-3 py-2 text-xs cursor-pointer transition-colors duration-200 ${
+                          isDark
+                            ? 'bg-slate-950 border-slate-800 text-white'
+                            : 'bg-white border-slate-300 text-slate-900 shadow-2xs'
+                        }`}
                       >
                         <option value="GET">GET</option>
                         <option value="POST">POST</option>
                       </select>
                     </div>
                     <div className="sm:col-span-3">
-                      <label className="block text-xs font-medium text-slate-300 mb-1">
+                      <label
+                        className={`block text-xs font-medium mb-1 ${
+                          isDark ? 'text-slate-300' : 'text-slate-800'
+                        }`}
+                      >
                         {t.httpUrl}
                       </label>
                       <input
@@ -565,7 +767,11 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                         value={httpUrl}
                         onChange={e => setHttpUrl(e.target.value)}
                         placeholder="https://api.domain.com/v1/data?param={param_name}"
-                        className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-xs font-mono text-sky-400"
+                        className={`w-full rounded-lg border px-3 py-2 text-xs font-mono transition-colors duration-200 ${
+                          isDark
+                            ? 'bg-slate-950 border-slate-800 text-sky-400'
+                            : 'bg-white border-slate-300 text-sky-700 shadow-2xs'
+                        }`}
                       />
                     </div>
                   </div>
@@ -574,7 +780,11 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
 
               {executionType === 'script' && (
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-slate-300">
+                  <label
+                    className={`block text-xs font-medium ${
+                      isDark ? 'text-slate-300' : 'text-slate-800'
+                    }`}
+                  >
                     {t.scriptCode}
                   </label>
                   <textarea
@@ -582,9 +792,17 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                     value={scriptCode}
                     onChange={e => setScriptCode(e.target.value)}
                     placeholder="return { result: args.amount * 1.15 };"
-                    className="w-full rounded-lg bg-slate-950 border border-slate-800 p-3 text-xs font-mono text-purple-300 focus:border-emerald-500 focus:outline-none"
+                    className={`w-full rounded-lg border p-3 text-xs font-mono transition-colors duration-200 focus:border-emerald-500 focus:outline-none ${
+                      isDark
+                        ? 'bg-slate-950 border-slate-800 text-purple-300'
+                        : 'bg-slate-900 border-slate-800 text-purple-300'
+                    }`}
                   />
-                  <span className="text-[11px] text-slate-500 block">
+                  <span
+                    className={`text-[11px] block ${
+                      isDark ? 'text-slate-500' : 'text-slate-600'
+                    }`}
+                  >
                     {lang === 'ar'
                       ? 'البيئة تتيح كائن args للمدخلات وكائن db للوصول إلى بيانات الجداول الحية.'
                       : 'Script has access to arguments via args and database tables via db.'}
@@ -598,10 +816,18 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
           {activeTab === 'preview' && (
             <div className="space-y-4">
               <div>
-                <h4 className="text-xs font-semibold text-white mb-1">
+                <h4
+                  className={`text-xs font-semibold mb-1 ${
+                    isDark ? 'text-white' : 'text-slate-900'
+                  }`}
+                >
                   {lang === 'ar' ? 'اختبار المعاينة السريعة (Dry Run)' : 'Quick Dry Run Preview'}
                 </h4>
-                <p className="text-[11px] text-slate-400">
+                <p
+                  className={`text-[11px] ${
+                    isDark ? 'text-slate-400' : 'text-slate-600'
+                  }`}
+                >
                   {lang === 'ar'
                     ? 'جرب تنفيذ الأداة قبل تثبيتها للتأكد من صحة استعلام SQL أو منطق الكود البرمجي.'
                     : 'Execute the logic against sample data to verify parameters before saving.'}
@@ -609,14 +835,28 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
               </div>
 
               {paramsList.length > 0 && (
-                <div className="space-y-2 rounded-lg bg-slate-950/70 border border-slate-850 p-3">
-                  <span className="text-[11px] font-semibold text-slate-300 block">
+                <div
+                  className={`space-y-2 rounded-lg border p-3 transition-colors duration-200 ${
+                    isDark
+                      ? 'bg-slate-950/70 border-slate-850'
+                      : 'bg-slate-50 border-slate-200'
+                  }`}
+                >
+                  <span
+                    className={`text-[11px] font-semibold block ${
+                      isDark ? 'text-slate-300' : 'text-slate-800'
+                    }`}
+                  >
                     {lang === 'ar' ? 'مدخلات التجربة (Test Arguments):' : 'Test Arguments:'}
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {paramsList.map(p => (
                       <div key={p.id}>
-                        <label className="block text-[10px] text-slate-400 mb-0.5">
+                        <label
+                          className={`block text-[10px] mb-0.5 ${
+                            isDark ? 'text-slate-400' : 'text-slate-600'
+                          }`}
+                        >
                           {p.name} ({p.type})
                         </label>
                         <input
@@ -628,7 +868,11 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                               [p.name]: p.type === 'number' || p.type === 'integer' ? Number(e.target.value) : e.target.value,
                             })
                           }
-                          className="w-full rounded bg-slate-900 border border-slate-800 px-2 py-1 text-xs text-white"
+                          className={`w-full rounded border px-2 py-1 text-xs transition-colors duration-200 ${
+                            isDark
+                              ? 'bg-slate-900 border-slate-800 text-white'
+                              : 'bg-white border-slate-300 text-slate-900 shadow-2xs'
+                          }`}
                         />
                       </div>
                     ))}
@@ -640,14 +884,20 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
                 type="button"
                 onClick={handleDryRun}
                 disabled={isDryRunning}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium text-slate-950 bg-emerald-400 hover:bg-emerald-300 disabled:opacity-50 rounded-lg transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 disabled:opacity-50 rounded-lg transition-colors duration-200 cursor-pointer shadow-xs"
               >
                 <Play className="h-3.5 w-3.5" />
                 <span>{isDryRunning ? t.executing : t.dryRun}</span>
               </button>
 
               {dryRunResult && (
-                <div className="rounded-lg bg-slate-950 border border-slate-800 p-3">
+                <div
+                  className={`rounded-lg border p-3 ${
+                    isDark
+                      ? 'bg-slate-950 border-slate-800'
+                      : 'bg-slate-900 border-slate-800'
+                  }`}
+                >
                   <span className="text-[11px] font-semibold text-emerald-400 block mb-1">
                     {t.testResults}
                   </span>
@@ -661,11 +911,19 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-slate-800 px-6 py-4 bg-slate-950/60">
+        <div
+          className={`flex items-center justify-between border-t px-6 py-4 transition-colors duration-200 ${
+            isDark ? 'border-slate-800 bg-slate-950/60' : 'border-slate-200 bg-slate-50'
+          }`}
+        >
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors"
+            className={`px-4 py-2 text-xs font-medium rounded-lg transition-colors duration-200 cursor-pointer ${
+              isDark
+                ? 'text-slate-400 hover:text-slate-200 hover:bg-slate-850'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+            }`}
           >
             {t.cancel}
           </button>
@@ -674,7 +932,7 @@ export const ToolEditorModal: React.FC<ToolEditorModalProps> = ({
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 active:bg-emerald-500 disabled:opacity-50 rounded-lg transition-colors shadow-sm cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 active:bg-emerald-500 disabled:opacity-50 rounded-lg transition-colors duration-200 shadow-xs cursor-pointer"
           >
             <Check className="h-4 w-4" />
             <span>{isSaving ? '...' : t.saveTool}</span>

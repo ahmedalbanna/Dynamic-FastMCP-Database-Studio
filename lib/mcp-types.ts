@@ -105,6 +105,7 @@ export interface AgentChatMessage {
   role: 'user' | 'assistant' | 'system' | 'tool_call' | 'tool_result';
   content: string;
   timestamp: string;
+  isError?: boolean;
   toolDetails?: {
     toolName: string;
     args: Record<string, any>;
